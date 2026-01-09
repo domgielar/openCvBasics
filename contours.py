@@ -18,6 +18,8 @@ for cnt in contours:
     if cv2.contourArea(cnt)>200:
         #cv2.drawContours(img,cnt,-1,(0,255,0),1)
 
+
+        #image processing object it draws boxes around objects.
         x1,y1,w,h = cv2.boundingRect(cnt)
         cv2.rectangle(img,(x1,y1),(x1+w,y1+h),(0,255,0),2)
 
