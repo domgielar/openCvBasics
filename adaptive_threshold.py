@@ -7,7 +7,7 @@ img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
 
-thresh = cv2.adaptiveThreshold(img_gray,255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,51,5)
+thresh = cv2.adaptiveThreshold(img_gray,255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,5)
 cv2.imshow("img", img)
 cv2.imshow("thresh", thresh)
 
