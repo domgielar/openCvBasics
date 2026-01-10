@@ -43,6 +43,11 @@ while True:
         x2=x1+bbox.width
         y2=y1+bbox.height
         cv2.rectangle(frame, (x1,y1), (x2,y2),(0,255,0), 2)
+
+        roi = frame[y1:y2, x1:x2]
+        blurred_image = cv2.blur(roi, (45,45))
+        #blur faces
+        frame[y1:y2, x1:x2] = blurred_image
     #visualize webcam
     cv2.imshow("Webcam", frame)
     if cv2.waitKey(1)& 0xFF == ord("q"):
