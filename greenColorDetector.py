@@ -4,7 +4,7 @@ import numpy as np
 from util import get_limits
 from PIL import Image
 
-brown = [0, 255,0] #white in BGR colorspace
+brown = [0, 100, 255] #red in BGR colorspace
 cap = cv2.VideoCapture(0)
 
 #running webcam
@@ -14,7 +14,6 @@ while True:
     hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     lowerLimit, upperLimit = get_limits(color=brown)
-
     mask = cv2.inRange(hsvImage,lowerLimit, upperLimit )
 
     #converting this image into pillow
