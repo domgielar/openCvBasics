@@ -1,71 +1,54 @@
 import os
 import cv2
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
 
-img = cv2.imread(os.path.join('.', 'data', 'drakemaye.jpg'))
-
-img_h, img_w = img.shape[:2]
 
 #reading webcam
 webcam = cv2.VideoCapture(0)
+#New face detection model for recent mediapipe model
+base_options = python.BaseOptions(
+    model_asset_path="models/blaze_face_short_range.tflite"
+)
+
+options = vision.FaceDetectorOptions(
+    base_options=base_options,
+    running_mode=vision.RunningMode.IMAGE,
+    min_detection_confidence=0.5
+)
 #media pipe face detector
-mp_face_detection = mp.solutions.face_detection
+detector = vision.FaceDetector.create_from_options(options)
 
-with mp_face_detection.FaceDetection(model_selection=0, min_detection_confidence=.5) as face_detection:
+#with mp_face_detection.FaceDetection(model_selection=0, min_detection_confidence=.5) as face_detection:
 #visualizing webcam
-    while True:
-        ret, frame = webcam.read()
-
-        h, w = frame.shape[:2]
-
-        frame_rgb = cv2.cvtCOLOR(frame, cv2.COLOR_BGR2RGB)
-
-        #run detector on this frame
-        result = face_detection.process(frame_rgb)
-
-        #if faces exists loop through them and draw boxes
-        if results.detections:
-            for detection in result.detections:
-                bbox = detection.location_data.relative_bounding_box
-
-                # Convert relative coords -> pixel coords
-                x1 = int(bbox.xmin * w)
-                y1 = int(bbox.ymin * h)
-                bw = int(bbox.width * w)
-                bh = int(bbox.height * h)
-
-                x2 = x1 + bw
-                y2 = y1 + bh
-
-                # Clamp to image bounds (prevents negative coords / overflow)
-                x1 = max(0, x1); y1 = max(0, y1)
-                x2 = min(w, x2); y2 = min(h, y2)
-
-                # Confidence score (0..1)
-                score = detection.score[0]
-
-                # 7) Draw rectangle + score on the ORIGINAL BGR frame
-                cv2.rectangle(frame_bgr, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(
-                    frame_bgr,
-                    f"{score:.2f}",
-                    (x1, max(0, y1 - 10)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.8,
-                    (0, 255, 0),
-                    2
-                )
-                
-
-
-
-        cv2.imshow("Webcam", frame)
-        if cv2.waitKey(0)& 0xFF == ord("q"):
-            break
-
-    webcam.release()
-    cv2.destroyAllWindows()
+while True:
+    ret, frame = webcam.read()
+    h, w = frame.shape[:2]
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    
+    # wrap image for MediaPipe Tasks
+    mp_image = mp.Image(
+        image_format=mp.ImageFormat.SRGB,
+        data =frame_rgb
+    )
+    #run face detection
+    result = detector.detect(mp_image)
+    # draw boxes
+    for detection in result.detections:
+        bbox = detection.bounding_box
+        x1=bbox.origin_x
+        y1=bbox.origin_y
+        x2=x1+bbox.width
+        y2=y1+bbox.height
+        cv2.rectangle(frame, (x1,y1), (x2,y2),(0,255,0), 2)
+    #visualize webcam
+    cv2.imshow("Webcam", frame)
+    if cv2.waitKey(1)& 0xFF == ord("q"):
+        break
+webcam.release()
+cv2.destroyAllWindows()
 
 
 
