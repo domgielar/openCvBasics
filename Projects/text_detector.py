@@ -3,6 +3,7 @@ import os
 from PIL import Image
 import pytesseract
 from easyocr import Reader
+import boto3
 
 image = "./textdata/motivation.jpeg"
 text = pytesseract.image_to_string(Image.open(image), lang='eng')
